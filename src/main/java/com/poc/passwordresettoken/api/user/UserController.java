@@ -30,7 +30,7 @@ public class UserController {
     public UserOutDto findById(@PathVariable String id) {
         return userService.findById(UUID.fromString(id))
                 .map(userMapper::toDto)
-                .orElseThrow(() -> new EntityNotFoundException());
+                .orElseThrow(EntityNotFoundException::new);
     }
 
     @ResponseStatus(HttpStatus.CREATED)
@@ -45,14 +45,27 @@ public class UserController {
         return userService.findById(UUID.fromString(id))
                 .map(user -> userMapper.mergeToUpdate(user, userUpdateDto))
                 .map(user -> userMapper.toDto(userService.update(user)))
-                .orElseThrow(() -> new EntityNotFoundException());
+                .orElseThrow(EntityNotFoundException::new);
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deactivate(@PathVariable String id) {
         userService.findById(UUID.fromString(id))
-                .ifPresentOrElse(user -> userService.deactivate(user.getId()), () -> new EntityNotFoundException());
+                .ifPresentOrElse(user -> userService.deactivate(user.getId()), () -> {
+                    throw new EntityNotFoundException();
+                });
+    }
+
+    @PostMapping("/forgotPassword")
+    @ResponseStatus(HttpStatus.OK)
+    public void forgotPassword(@RequestBody ForgotPasswordDto forgotPassword) {
+        userService.forgotPassword(forgotPassword.getEmail());
+    }
+
+    @PostMapping("/resetPassword")
+    public void resetPassword(@RequestBody ResetPasswordDto resetPasswordDto) {
+        userService.resetPassword(resetPasswordDto.getNewPassword(), resetPasswordDto.getResetToken());
     }
 
 }
