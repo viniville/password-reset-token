@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 
 import java.time.LocalDate;
 
@@ -28,7 +27,6 @@ public class PocPasswordResetTokenApplication {
     }
 
     @PostConstruct
-    @ConditionalOnProperty("${createAdminUser:false}")
     public void init() {
         if (createAdminUser)
             userService.insert(User.builder()
